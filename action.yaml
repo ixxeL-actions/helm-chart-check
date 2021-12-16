@@ -23,7 +23,7 @@ runs:
         if [[ -f ${{ inputs.working-dir }}/Chart.yaml ]]
         then
           echo -e "${CYAN}[ INFO ] > Chart.yaml file detected. Here is the file${BLANK}"
-          yq e ${{ inputs.working-dir }}/Chart.yaml
+          yq e ${{ inputs.working-dir }}/Chart.yaml -C
           CHART_VERSION=$(yq e '.version' ${{ inputs.working-dir }}/Chart.yaml)
           echo -e "${CYAN}[ INFO ] > Chart version is --> ${CHART_VERSION}${BLANK}"
         else
