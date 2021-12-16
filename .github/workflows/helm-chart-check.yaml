@@ -1,5 +1,5 @@
 ---
-name: Helm-chart-check-CI
+name: Helm-lint-CI
 on:
   push:
     branches:
@@ -15,7 +15,7 @@ jobs:
     steps:
     - name: Git clone repo
       uses: actions/checkout@v2
-    - name: Helm chart checking
-      uses: ixxeL-actions/helm-chart-check@main
+    - name: Helm chart linting
+      uses: ixxeL-actions/helm-lint@main
       with:
         working-dir: './chart/postgresql'

@@ -1,8 +1,16 @@
 ---
-name: 'Helm-chart-check'
-description: 'Checking helm charts.'
+name: 'Helm-lint'
+description: 'Linting helm charts.'
 author: 'ixxeL'
 inputs:
+  values-file:
+    description: 'the values file used for linting and templating'
+    required: false
+    default: 'values.yaml'
+  strict:
+    description: 'fail on lint warnings'
+    required: false
+    default: 'true'
   working-dir:
     description: 'file to scan'
     required: false
@@ -11,23 +19,38 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: helm-chart-check
+    - id: helm-lint
       run: |
         set +e
-        echo -e "${BLUE}[ STEP - Helm-chart check ] > Checking Helm chart.${BLANK}"
+        echo -e "${BLUE}[ STEP - Helm-chart linting ] > Linting Helm chart.${BLANK}"
         echo -e "${CYAN}[ INFO ] > Helm version.${BLANK}"
         helm version --short
         echo -e "${YELLOW}[ EXECUTING ] > Checking helm chart ${{ inputs.working-dir }}.${BLANK}"
-
-
         if [[ -f ${{ inputs.working-dir }}/Chart.yaml ]]
         then
           echo -e "${CYAN}[ INFO ] > Chart.yaml file detected. Here is the file${BLANK}"
           yq e ${{ inputs.working-dir }}/Chart.yaml -C
+          CHART_NAME=$(yq e '.name' ${{ inputs.working-dir }}/Chart.yaml)
           CHART_VERSION=$(yq e '.version' ${{ inputs.working-dir }}/Chart.yaml)
-          echo -e "${CYAN}[ INFO ] > Chart version is --> ${CHART_VERSION}${BLANK}"
+          CHART_APP_VERSION=$(yq e '.appVersion' ${{ inputs.working-dir }}/Chart.yaml)
+          echo -e "${CYAN}[ INFO ] > The chart [[ ${CHART_NAME} ]] has version --> [[ ${CHART_VERSION} ]] and appVersion --> [[ ${CHART_APP_VERSION} ]]${BLANK}"
         else
           echo -e "${PURPLE}[ WARNING ] > Chart.yaml file NOT detected.${BLANK}"
+        fi
+
+        echo -e "${YELLOW}[ EXECUTING ] > CHecking Helm linting on chart ${CHART_NAME}.${BLANK}"
+        helm lint ${{ inputs.working-dir }} --with-subcharts \
+                                            --values=${{ inputs.values-file }} \
+                                            --strict=${{ inputs.strict }}
+        if [[ $? = 0 ]]
+        then
+          echo ::set-output name=CHART_NAME::${CHART_NAME}
+          echo ::set-output name=CHART_VERSION::${CHART_VERSION}
+          echo ::set-output name=CHART_APP_VERSION::${CHART_APP_VERSION}
+          echo -e "${GREEN}[ CHECK SUCCESS ] > Helm Lint succeeded without any error.${BLANK}"
+        else
+          echo -e "${PURPLE}[ CHECK ERROR ] > Helm Lint didn't succeed, please review your helm chart.${BLANK}"
+          exit 1
         fi
       shell: bash
       env:
