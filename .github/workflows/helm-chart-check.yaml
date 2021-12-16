@@ -18,4 +18,6 @@ jobs:
     - name: Helm chart linting
       uses: ixxeL-actions/helm-lint@main
       with:
+        values-file: values.yaml
+        strict: 'true'
         working-dir: './chart/postgresql'

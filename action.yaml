@@ -40,7 +40,7 @@ runs:
 
         echo -e "${YELLOW}[ EXECUTING ] > CHecking Helm linting on chart ${CHART_NAME}.${BLANK}"
         helm lint ${{ inputs.working-dir }} --with-subcharts \
-                                            --values=${{ inputs.values-file }} \
+                                            --values=${{ inputs.working-dir }}/${{ inputs.values-file }} \
                                             --strict=${{ inputs.strict }}
         if [[ $? = 0 ]]
         then
