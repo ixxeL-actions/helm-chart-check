@@ -26,6 +26,14 @@ runs:
         echo -e "${CYAN}[ INFO ] > Helm version.${BLANK}"
         helm version --short
         echo -e "${YELLOW}[ EXECUTING ] > Checking helm chart ${{ inputs.working-dir }}.${BLANK}"
+        if [[ -d ${{ inputs.working-dir }} ]]
+        then
+          echo -e "${GREEN}[ CHECK SUCCESS ] > Directory exists, proceeding linting.${BLANK}"
+        else
+          echo -e "${RED}[ CHECK ERROR ] > Directory doesn't exist, canceling linting.${BLANK}"
+          exit 1
+        fi
+
         if [[ -f ${{ inputs.working-dir }}/Chart.yaml ]]
         then
           echo -e "${CYAN}[ INFO ] > Chart.yaml file detected. Here is the file${BLANK}"
