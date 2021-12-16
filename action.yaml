@@ -3,34 +3,10 @@ name: 'Helm-chart-check'
 description: 'Checking helm charts.'
 author: 'ixxeL'
 inputs:
-  format:
-    description: 'Format result. [parsable,standard,colored,github,auto]'
-    required: false
-    default: 'colored'
-  strict:
-    description: 'return non-zero exit code on warnings as well as errors.'
-    required: false
-    default: 'false'
-  no-warnings:
-    description: 'output only error level problems.'
-    required: false
-    default: 'false'
-  config-file:
-    description: 'path to a custom configuration.'
-    required: false
-    default: ''
-  fix:
-    description: 'will use yamlfix to fix YAML file errors.'
-    required: false
-    default: 'false'
-  exit-zero:
-    description: 'Force exit 0 code'
-    required: false
-    default: 'true'
   working-dir:
     description: 'file to scan'
     required: false
-    default: './*.yaml'
+    default: './chart/postgresql'
 
 runs:
   using: "composite"
@@ -50,6 +26,9 @@ runs:
           yq e ${{ inputs.working-dir }}/Chart.yaml
           CHART_VERSION=$(yq e '.version' ${{ inputs.working-dir }}/Chart.yaml)
           echo -e "${CYAN}[ INFO ] > Chart version is --> ${CHART_VERSION}${BLANK}"
+        else
+          echo -e "${PURPLE}[ WARNING ] > Chart.yaml file NOT detected.${BLANK}"
+        fi
       shell: bash
       env:
         RED: \033[1;31m
